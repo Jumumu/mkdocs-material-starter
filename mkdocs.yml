@@ -47,20 +47,22 @@ theme:
     - toc.follow               # When anchor following for the table of contents is enabled, the sidebar is automatically scrolled so that the active anchor is always visible (https://squidfunk.github.io/mkdocs-material/setup/setting-up-navigation/#anchor-following)
   # Sets the color scheme (https://squidfunk.github.io/mkdocs-material/setup/changing-the-colors/)
   palette:
-    - scheme: default # Sets the site color scheme (https://squidfunk.github.io/mkdocs-material/setup/changing-the-colors/#color-scheme)
-      primary: indigo # Sets the primary color (https://squidfunk.github.io/mkdocs-material/setup/changing-the-colors/#primary-color)
-      accent: indigo  # Sets the accent color (https://squidfunk.github.io/mkdocs-material/setup/changing-the-colors/#accent-color)
-      toggle:
-        # Adds a button to toggle to dark mode (https://squidfunk.github.io/mkdocs-material/setup/changing-the-colors/#color-palette-toggle)
-        icon: material/weather-night
-        name: Switch to dark mode
-    - scheme: slate   # Sets the site color scheme (https://squidfunk.github.io/mkdocs-material/setup/changing-the-colors/#color-scheme)
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate   # Sets the site color scheme (https://squidfunk.github.io/mkdocs-material/setup/changing-the-colors/#color-scheme)
       primary: indigo # Sets the primary color (https://squidfunk.github.io/mkdocs-material/setup/changing-the-colors/#primary-color)
       accent: indigo  # Sets the accent color (https://squidfunk.github.io/mkdocs-material/setup/changing-the-colors/#accent-color)
       toggle:
         # Adds a button to toggle to light mode (https://squidfunk.github.io/mkdocs-material/setup/changing-the-colors/#color-palette-toggle)
         icon: material/weather-sunny
         name: Switch to light mode
+    - media: "(prefers-color-scheme: light)"
+      scheme: default # Sets the site color scheme (https://squidfunk.github.io/mkdocs-material/setup/changing-the-colors/#color-scheme)
+      primary: indigo # Sets the primary color (https://squidfunk.github.io/mkdocs-material/setup/changing-the-colors/#primary-color)
+      accent: indigo  # Sets the accent color (https://squidfunk.github.io/mkdocs-material/setup/changing-the-colors/#accent-color)
+      toggle:
+        # Adds a button to toggle to dark mode (https://squidfunk.github.io/mkdocs-material/setup/changing-the-colors/#color-palette-toggle)
+        icon: material/weather-night
+        name: Switch to dark mode
   # Sets the site font (https://squidfunk.github.io/mkdocs-material/setup/changing-the-fonts/)
   font:
     text: Roboto

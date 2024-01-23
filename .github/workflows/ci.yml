@@ -1,28 +1,99 @@
-name: ci 
+name: ci
 on:
   push:
     branches:
-      - main
+      # Set the branch name that will trigger a pipeline build
+      - generic-deploy
+
+# Need write permission to push to the repository
 permissions:
   contents: write
+
+env:
+  # Set the branch name to publish the documentation to
+  DOCS_BRANCH: gh-pages
+  # Push changes as the GitHub actions bot account
+  GIT_COMMITTER_NAME: github-actions[bot]
+  GIT_COMMITTER_EMAIL: github-actions[bot]@users.noreply.github.com
+  # Directory to output generated HTML
+  HTML_OUTPUT_DIR: site
+
 jobs:
-  deploy:
+  deploy-mkdocs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Configure Git Credentials
-        run: |
-          git config user.name github-actions[bot]
-          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+
+      # Python dependency is specific to MkDocs
       - uses: actions/setup-python@v4
         with:
           python-version: 3.x
-      - run: echo "cache_id=$(date --utc '+%V')" >> $GITHUB_ENV 
-      - uses: actions/cache@v3
-        with:
-          key: mkdocs-material-${{ env.cache_id }}
-          path: .cache
-          restore-keys: |
-            mkdocs-material-
-      - run: pip install mkdocs-material 
-      - run: mkdocs gh-deploy --force
+
+      - name: Install MkDocs and Material theme
+        run: pip install mkdocs-material
+
+      - name: Build documentation
+        run: mkdocs build --site-dir ${{ env.HTML_OUTPUT_DIR }}
+
+      - name: Publish documentation
+        # Option 1: manual approach
+        # Documentation is pushed with --force to continually overwrite the previous commit which will prevent bloating the repository
+        run: |
+          COMMIT_SHA=$(git rev-parse --short HEAD)
+          cd ${{ env.HTML_OUTPUT_DIR }}
+          git init
+          git remote add origin "https://${{ env.GIT_COMMITTER_NAME }}:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}"
+          git config user.name ${{ env.GIT_COMMITTER_NAME }}
+          git config user.email ${{ env.GIT_COMMITTER_EMAIL }}
+          git switch -c ${{ env.DOCS_BRANCH }}
+          git add .
+          git commit -m "Deploy ${COMMIT_SHA} with MkDocs"
+          git push -u origin --force ${{ env.DOCS_BRANCH }}
+
+        # # Option 2: automated approach using the ghp-import tool
+        # run: |
+        #   pip install ghp-import
+        #   COMMIT_SHA=$(git rev-parse --short HEAD)
+        #   ghp-import --push --force --no-history --remote=origin --branch=${{ env.DOCS_BRANCH }} --message="Deploy ${COMMIT_SHA} with MkDocs" ${{ env.HTML_OUTPUT_DIR }}
+
+  # deploy-quartz:
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - uses: actions/checkout@v4
+
+  #     - name: Use Node.js
+  #       uses: actions/setup-node@v3
+  #       with:
+  #         node-version: 18.x
+
+  #     - name: Install Quartz
+  #       run: |
+  #         git clone --depth=1 https://github.com/jackyzha0/quartz
+  #         cd quartz
+  #         npm i
+
+  #     - name: Build documentation
+  #       run: |
+  #         cd quartz
+  #         npx quartz build --directory ../docs --output ../${{ env.HTML_OUTPUT_DIR }}
+
+  #     - name: Publish documentation
+  #       # Option 1: manual approach
+  #       # Documentation is pushed with --force to continually overwrite the previous commit which will prevent bloating the repository
+  #       run: |
+  #         COMMIT_SHA=$(git rev-parse --short HEAD)
+  #         cd ${{ env.HTML_OUTPUT_DIR }}
+  #         git init
+  #         git remote add origin "https://${{ env.GIT_COMMITTER_NAME }}:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}"
+  #         git config user.name ${{ env.GIT_COMMITTER_NAME }}
+  #         git config user.email ${{ env.GIT_COMMITTER_EMAIL }}
+  #         git switch -c ${{ env.DOCS_BRANCH }}
+  #         git add .
+  #         git commit -m "Deploy ${COMMIT_SHA} with Quartz"
+  #         git push -u origin --force ${{ env.DOCS_BRANCH }}
+
+  #       # # Option 2: automated approach using the ghp-import tool (must add actions/python@v4 if this is uncommented)
+  #       # run: |
+  #       #   pip install ghp-import
+  #       #   COMMIT_SHA=$(git rev-parse --short HEAD)
+  #       #   ghp-import --push --force --no-history --remote=origin --branch=${{ env.DOCS_BRANCH }} --message="Deploy ${COMMIT_SHA} with Quartz" ${{ env.HTML_OUTPUT_DIR }}
