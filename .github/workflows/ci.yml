@@ -17,6 +17,8 @@ env:
   GIT_COMMITTER_EMAIL: github-actions[bot]@users.noreply.github.com
   # Directory to output generated HTML
   HTML_OUTPUT_DIR: site
+  # Set custom domain name
+  CUSTOM_DOMAIN_NAME:
 
 jobs:
   deploy-mkdocs:
@@ -41,6 +43,7 @@ jobs:
         run: |
           COMMIT_SHA=$(git rev-parse --short HEAD)
           cd ${{ env.HTML_OUTPUT_DIR }}
+          echo ${{ env.CUSTOM_DOMAIN_NAME }} > CNAME
           git init
           git remote add origin "https://${{ env.GIT_COMMITTER_NAME }}:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}"
           git config user.name ${{ env.GIT_COMMITTER_NAME }}
@@ -54,7 +57,7 @@ jobs:
         # run: |
         #   pip install ghp-import
         #   COMMIT_SHA=$(git rev-parse --short HEAD)
-        #   ghp-import --push --force --no-history --remote=origin --branch=${{ env.DOCS_BRANCH }} --message="Deploy ${COMMIT_SHA} with MkDocs" ${{ env.HTML_OUTPUT_DIR }}
+        #   ghp-import --push --force --no-history --cname=${{ env.CUSTOM_DOMAIN_NAME }} --remote=origin --branch=${{ env.DOCS_BRANCH }} --message="Deploy ${COMMIT_SHA} with MkDocs" ${{ env.HTML_OUTPUT_DIR }}
 
   # deploy-quartz:
   #   runs-on: ubuntu-latest
@@ -83,6 +86,7 @@ jobs:
   #       run: |
   #         COMMIT_SHA=$(git rev-parse --short HEAD)
   #         cd ${{ env.HTML_OUTPUT_DIR }}
+  #         echo ${{ env.CUSTOM_DOMAIN_NAME }} > CNAME
   #         git init
   #         git remote add origin "https://${{ env.GIT_COMMITTER_NAME }}:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}"
   #         git config user.name ${{ env.GIT_COMMITTER_NAME }}
@@ -96,4 +100,4 @@ jobs:
   #       # run: |
   #       #   pip install ghp-import
   #       #   COMMIT_SHA=$(git rev-parse --short HEAD)
-  #       #   ghp-import --push --force --no-history --remote=origin --branch=${{ env.DOCS_BRANCH }} --message="Deploy ${COMMIT_SHA} with Quartz" ${{ env.HTML_OUTPUT_DIR }}
+  #       #   ghp-import --push --force --no-history --cname=${{ env.CUSTOM_DOMAIN_NAME }} --remote=origin --branch=${{ env.DOCS_BRANCH }} --message="Deploy ${COMMIT_SHA} with Quartz" ${{ env.HTML_OUTPUT_DIR }}
